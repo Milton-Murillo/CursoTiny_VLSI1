@@ -26,12 +26,12 @@ module tt_um_example (
     wire _unused = &{ui_in[7:1], uio_in, 1'b0};
 
     tt_um_top_lfsr_register_8bit  dut (
-        .clk_i          (clk),
-        .reset_n_i      (rst_n),
-        .lfsr_enable_i  (ena),
-        .reg_load_i     (ui_in[0]),
-        .reg_data_o     (uo_out),
-        .lfsr_done_o    (uio_out[0])
+        .clk            (clk_i),
+        .reset_n        (rst_n_i),
+        .ena            (lfsr_enable_i),
+        .ui_in[0]       (reg_load_i),
+        .uo_out         (reg_data_o),
+        .uio_out[0]     (lfsr_done_o)
     );
 
 endmodule
