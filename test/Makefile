@@ -1,44 +1,46 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
-# SPDX-License-Identifier: Apache-2.0
+# Makefile
+# See https://docs.cocotb.org/en/stable/quickstart.html for more info
  
-import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+# defaults
+SIM ?= icarus
+FST ?= -fst # Use more efficient FST format
+TOPLEVEL_LANG ?= verilog
+SRC_DIR = $(PWD)/../src
+#PROJECT_SOURCES = project.v mux_2to1_4b.v
  
+PROJECT_SOURCES = project.v top_lfsr.v
+ifneq ($(GATES),yes)
  
-@cocotb.test()
-async def test_project(dut):
-    cocotb.pass_test()
-    dut._log.info("Start")
+# RTL simulation:
+SIM_BUILD               = sim_build/rtl
+VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
  
-    # Set the clock period to 10 us (100 KHz)
-    clock = Clock(dut.clk, 10, unit="us")
-    cocotb.start_soon(clock.start())
+else
  
-    # Reset
-    dut._log.info("Reset")
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
-    dut.rst_n.value = 1
+# Gate level simulation:
+SIM_BUILD               = sim_build/gl
+COMPILE_ARGS    += -DGL_TEST
+COMPILE_ARGS    += -DFUNCTIONAL
+COMPILE_ARGS    += -DUSE_POWER_PINS
+COMPILE_ARGS    += -DSIM
+COMPILE_ARGS    += -DUNIT_DELAY=\#1
+VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
+VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
  
-    dut._log.info("Test project behavior")
+# this gets copied in by the GDS action workflow
+VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
  
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+endif
  
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+# Allow sharing configuration between design and testbench via `include`:
+COMPILE_ARGS        += -I$(SRC_DIR)
  
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+# Include the testbench sources:
+VERILOG_SOURCES += $(PWD)/tb.v
+TOPLEVEL = tb
  
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
-    @cocotb.test()
-    async def compare_reference(dut):
-        cocotb.pass_test() # <- add this line too!
+# List test modules to run, separated by commas and without the .py suffix:
+COCOTB_TEST_MODULES = test
+ 
+# include cocotb's make rules to take care of the simulator setup
+include $(shell cocotb-config --makefiles)/Makefile.sim
