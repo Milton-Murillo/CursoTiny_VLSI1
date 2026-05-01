@@ -1,4 +1,4 @@
-`default_nettype none
+`default_nettype wire
 
 module tt_um_example (
     input  wire [7:0] ui_in,    // Dedicated inputs
