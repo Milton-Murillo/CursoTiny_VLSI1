@@ -41,7 +41,6 @@ module LFSR #(
     input                  i_Clk,
     input                  i_Rst,        // Reset activo en bajo
     input                  i_Enable,
-    input  [NUM_BITS-1:0]  i_Seed_Data,
     output [NUM_BITS-1:0]  o_LFSR_Data,
     output                 o_LFSR_Done
 );
@@ -51,7 +50,7 @@ module LFSR #(
 
     always @(posedge i_Clk or negedge i_Rst) begin
         if (!i_Rst) begin
-            r_LFSR <= i_Seed_Data;
+            r_LFSR <= 8'b10101010;
         end else begin
             if (i_Enable) begin
                 r_LFSR <= {r_LFSR[NUM_BITS-1:1], r_XNOR};
@@ -98,7 +97,7 @@ module LFSR #(
 
     assign o_LFSR_Data = r_LFSR[NUM_BITS:1];
 
-    assign o_LFSR_Done = (r_LFSR[NUM_BITS:1] == i_Seed_Data) ? 1'b1 : 1'b0;
+  assign o_LFSR_Done = (r_LFSR[NUM_BITS:1] == 10101010) ? 1'b1 : 1'b0;
 
 endmodule
 
@@ -112,7 +111,6 @@ module top_lfsr_register_8bit (
     input        reset_n_i,       // Reset activo en bajo
     input        lfsr_enable_i,   // Habilita generación del LFSR
     input        reg_load_i,      // Habilita almacenamiento en el registro
-    input  [7:0] seed_i,
 
     output [7:0] reg_data_o,
     output       lfsr_done_o
@@ -126,7 +124,6 @@ module top_lfsr_register_8bit (
         .i_Clk       (clk_i),
         .i_Rst       (reset_n_i),
         .i_Enable    (lfsr_enable_i),
-        .i_Seed_Data (seed_i),
         .o_LFSR_Data (lfsr_data),
         .o_LFSR_Done (lfsr_done_o)
     );
