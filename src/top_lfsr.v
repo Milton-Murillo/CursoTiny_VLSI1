@@ -106,7 +106,7 @@ endmodule
 // Top: conexión entre LFSR y registro de 8 bits
 // ============================================================
 
-module top_lfsr_register_8bit (
+module tt_um_top_lfsr_register_8bit (
     input        clk_i,
     input        reset_n_i,       // Reset activo en bajo
     input        lfsr_enable_i,   // Habilita generación del LFSR
