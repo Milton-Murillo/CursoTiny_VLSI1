@@ -12,6 +12,7 @@ module register_8bit (
     output [7:0] data_o
 );
 
+    
     reg [7:0] reg_data;
 
     always @(posedge clk_i or negedge reset_n_i) begin
