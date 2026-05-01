@@ -25,7 +25,7 @@ module tt_um_example (
   // List all unused inputs to prevent warnings
     wire _unused = &{ui_in[7:1], uio_in, 1'b0};
 
-    top_lfsr_register_8bit dut (
+    tt_um_top_lfsr_register_8bit  dut (
         .clk_i          (clk),
         .reset_n_i      (rst_n),
         .lfsr_enable_i  (ena),
